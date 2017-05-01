@@ -8,14 +8,8 @@ Serveur::Serveur()
 
     connect(socket, SIGNAL(readyRead()), this, SLOT(readSocket()));
 
-    ----------------
-    Dans le serveur.h :
-
-    private slots:
-        void readSocket();
-
-    ----------------
-    Dans le serveur.c :
+    //----------------
+    //Dans le serveur.c :
 
     void Serveur::readSocket()
     {
