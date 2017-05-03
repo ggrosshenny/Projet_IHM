@@ -4,7 +4,7 @@
 #
 #-------------------------------------------------
 
-QT       += core gui
+QT       += core gui network
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
@@ -15,10 +15,12 @@ TEMPLATE = app
 SOURCES += main.cpp\
         mainwindow.cpp \
     serveur.cpp \
-    automate.cpp
+    automate.cpp \
+    sendjsoncommand.cpp
 
 HEADERS  += mainwindow.h \
     serveur.h \
-    automate.h
+    automate.h \
+    sendjsoncommand.h
 
 FORMS    += mainwindow.ui
