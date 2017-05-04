@@ -67,5 +67,8 @@ CMakeLists.txt.user*
 
 # Qt Creator backups
 
+# fichiers mp3
+*.mp3
+
 # End of https://www.gitignore.io/api/qt,qtcreator
 
