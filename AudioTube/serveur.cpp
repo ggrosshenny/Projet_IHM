@@ -366,7 +366,7 @@ void Serveur::readMPVSocket()
         jsonMsg["command"] = jsonArr;
 
         // Envoi du message traduit aux clients
-        Serveur::envoieJsonClients(jsonMsg);
+        envoieJsonClients(jsonMsg);
 
 
         qDebug() << QString::fromUtf8(line.constData(), line.length());

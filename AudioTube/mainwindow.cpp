@@ -130,6 +130,7 @@ void MainWindow::readSocketOnServer() {
         QJsonArray jArr = jObj["command"].toArray();
         int cmd = jArr.at(0).toInt();
 
+        qDebug() << "la commande reçu est : " << cmd;
         // Utilisation du JSON
 
         // Si la commande est ...
@@ -138,46 +139,28 @@ void MainWindow::readSocketOnServer() {
         {
             case changeVolumeCMD:
                 valeur = static_cast<int>(jArr.at(1).toDouble());
+                qDebug() << "la commande reçu est : changeVolumeCMD de valeur : " << valeur;
                 emit setVolume(valeur);
                 break;
 
             case changeOffsetCMD:
                 valeur = static_cast<int>(jArr.at(1).toDouble());
+                qDebug() << "la commande reçu est : changeOffsetCMD de valeur : " << valeur;
                 emit setoffsetMusique(valeur);
                 break;
 
             case changeCurrentTimeCMD:
                 valeur = static_cast<int>(jArr.at(1).toDouble());
+                qDebug() << "la commande reçu est : changeCurrentTimeCMD de valeur : " << valeur;
                 emit setTempsEcoule(valeur);
                 break;
 
             case changeTotalTimeCMD:
                 valeur = static_cast<int>(jArr.at(1).toDouble());
+                qDebug() << "la commande reçu est : changeTotalTimeCMD de valeur : " << valeur;
                 emit setTempsTotal(valeur);
                 break;
         }
-
-    /*
-        if(cmd == "volume")
-        {
-            valeur = static_cast<int>(jArr.at(1).toDouble());
-            emit setVolume(valeur);
-        }
-        if(cmd == "position")
-        {
-            valeur = static_cast<int>(jArr.at(1).toDouble());
-            emit setoffsetMusique(valeur);
-        }
-        if(cmd == "play")
-        {
-            // TO-DO
-        }
-        if(cmd == "pause")
-        {
-            // TO-DO
-        }
-*/
-
 
     }
 
