@@ -152,3 +152,35 @@ void SendjsoncommandToMPV::quitMPVServer()
 
     SendjsoncommandToMPV::sendRequestToMPV(jsonObject);
 }
+
+
+/**
+ * @brief SendjsoncommandToMPV::CurrentUpdate
+ * Param : void
+ * Desc : Check for possible update of the current track on MPV
+ */
+void SendjsoncommandToMPV::CurrentUpdate(){
+
+    QJsonObject jsonObject;
+    QJsonArray jsonArr;
+
+    jsonArr.append("observe_property");
+    jsonArr.append(1);
+    jsonArr.append("title");
+    jsonArr.append("observe_property");
+    jsonArr.append(2);
+    jsonArr.append("volume");
+    jsonArr.append("observe_property");
+    jsonArr.append(3);
+    jsonArr.append("percent-pos");
+    jsonArr.append("observe_property");
+    jsonArr.append(4);
+    jsonArr.append("duration");
+    jsonArr.append("observe_property");
+    jsonArr.append(5);
+    jsonArr.append("pause");
+
+    jsonObject["command"] = jsonArr;
+
+    SendjsoncommandToMPV::sendRequestToMPV(jsonObject);
+}
