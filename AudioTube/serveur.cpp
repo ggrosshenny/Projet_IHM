@@ -340,7 +340,7 @@ void Serveur::readMPVSocket()
         if(jsonObject["name"] == "pause" && jsonObject["data"] == false){
             jsonArr.append(playCMD);
         }
-        if(jsonObject["stop"]){
+        if(jsonObject["name"] == "stop"){
             jsonArr.append(stopCMD);
         }
         if(jsonObject["name"] == "speed"){
@@ -358,7 +358,7 @@ void Serveur::readMPVSocket()
         if(jsonObject["name"] == "duration"){
             jsonArr.append(changeTotalTimeCMD);
         }
-        if(jsonObject["loadfile"]){
+        if(jsonObject["name"] == "loadfile"){
             jsonArr.append(changeMusiqueCMD);
         }
 
@@ -382,18 +382,20 @@ void Serveur::readMPVSocket()
  **/
 void Serveur::readClientServerSocket()
 {
+    QLocalSocket *socketClient = qobject_cast<QLocalSocket *>(sender());
     // Recuperation du JSON
-    QByteArray line = MPVSocket->readLine().trimmed();
     QString musique;
     int cmd;
     int val;
 
     // Pour le passage en JSON
+    val = 0;
+    QByteArray readLineFromClient = socketClient->readLine().trimmed();  // Prendre JSon du socket
     QJsonParseError error;
-    QJsonDocument jsonDoc=QJsonDocument::fromJson(line, &error);
-    QJsonObject jsonObject=jsonDoc.object();
-    cmd = jsonObject["commande"].toInt();
-    qDebug() << "la valeur de la cmd est : " << cmd;
+    QJsonDocument jDoc = QJsonDocument::fromJson(readLineFromClient, &error);
+    QJsonObject jObj = jDoc.object();
+    QJsonArray jArr = jObj["command"].toArray();
+    cmd = jArr.at(0).toInt();
 
 
     // Gestion des cas en fonction de la commande reçu
@@ -420,12 +422,12 @@ void Serveur::readClientServerSocket()
             break;
 
         case changeMusiqueCMD:
-            musique = jsonObject["value"].toString();
+            musique = jArr.at(1).toString();
             emit changeMusique(musique);
             break;
 
         case changeVolumeCMD:
-            val = jsonObject["value"].toInt();
+            val = jArr.at(1).toDouble();
             emit changeVolume(val);
             break;
 
@@ -437,7 +439,7 @@ void Serveur::readClientServerSocket()
             break;
     }
 
-    qDebug() << QString::fromUtf8(line.constData(), line.length());
+    qDebug() << QString::fromUtf8(readLineFromClient.constData(), readLineFromClient.length());
 
 }
 
