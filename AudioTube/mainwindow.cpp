@@ -1,26 +1,25 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 
-MainWindow::MainWindow(QWidget *parent) :
+MainWindow::MainWindow(QWidget *parent, Client client) :
     QMainWindow(parent),
     ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
-    QObject::connect(mpv_socket, SIGNAL(progressUpdate(int)), sliderLecteur, SLOT(setValue(int)));
-    QObject::connect(ui->buttonPlay, SIGNAL(playSignal()), this, SLOT());
-    QObject:: connect(ui->buttonStop, SIGNAL(stopSignal()), this, SLOT());
-    QObject:: connect(ui->buttonPause, SIGNAL(pauseSignal()), this, SLOT());
-    QObject:: connect(ui->buttonFFrwd, SIGNAL(FFrwdSignal()), this, SLOT());
-    QObject:: connect(ui->buttonFRtrn, SIGNAL(FRtrnSignal()), this, SLOT());
-    QObject:: connect(ui->buttonQuit, SIGNAL(quit()), this, SLOT());
-    QObject::connect(this, SIGNAL(pressed())), ui->controleVolume, SLOT(setVolume());
+    QObject::connect(ui->Play, SIGNAL(playSignal()),client , SLOT(Client::setPlay()));
+    QObject::connect(ui->Arret, SIGNAL(stopSignal()), client, SLOT(Client::setStop()));
+    QObject::connect(ui->Pause, SIGNAL(pauseSignal()), client, SLOT(Client::setPause()));
+    QObject::connect(ui->AvanceRapide, SIGNAL(FFrwdSignal()), client, SLOT(Client::setAR()));
+    QObject::connect(ui->RetourRapide, SIGNAL(FRtrnSignal()), client, SLOT(Client::setRR()));
+    QObject::connect(ui->buttonQuit, SIGNAL(quit()), client, SLOT(Client::quit()));
+    QObject::connect(this, SIGNAL(pressed())), ui->controleVolume, SLOT(Client::setVolume(float));
 
+}
 
 MainWindow::~MainWindow()
 {
     delete ui;
 }
 
-void MainWindow::setVolume(float volume){
-    ui->controleVolume->setValue(volume);
-}
+
+//connect signal reçu UI vers SLOT dans Client qui effectue l'action

@@ -1,12 +1,12 @@
 #include "sendjsoncommandtoserver.h"
 
-SendJSONCommandToServer::SendJSONCommandToServer(QObject *parent) :
+SendJSONCommandToServer::SendJSONCommandToServer(QObject *parent, QString servSocket) :
     QObject(parent),
     server(new QLocalSocket(this))
 {
     // Connecting to mpv server
     qDebug() << "Connecting to server....";
-    server->connectToServer("/tmp/mpv-socket");
+    server->connectToServer(servSocket);
 
     // Verify if we are connected
     if(server->waitForConnected())
@@ -24,27 +24,77 @@ SendJSONCommandToServer::~SendJSONCommandToServer()
     server->disconnectFromServer();
 }
 
-void SendJSONCommandToServer::setPlay()
-{
-    // server->setPlay()
+
+SendJSONCommandToServer::sendRequestToServer(QJsonObject msg){
+    // Converting the JSON msg into bytes msg
+    QByteArray bytes = QJsonDocument(msg).toJson(QJsonDocument::Compact)+"\n";
+    if(server!=NULL)
+    {
+        server->write(bytes.data(), bytes.length());
+        server->flush();
+    }
 }
 
-void SendJSONCommandToServer::setPause()
+void SendJSONCommandToServer::SendPlayToServ()
 {
-    // server->setPause()
+    QJsonObject jsonObject;
+    QJsonArray jsonArr;
+
+    jsonArr.append("set_property");
+    jsonArr.append("pause");
+    jsonArr.append(false);
+
+    jsonObject["command"] = jsonArr;
+
+    SendJSONCommandToServer::sendRequestToServer(jsonObject);
 }
 
-void SendJSONCommandToServer::setStop()
+void SendJSONCommandToServer::SendPauseToServ()
 {
-    // server->setStop()
+    QJsonObject jsonObject;
+    QJsonArray jsonArr;
+
+    jsonArr.append("set_property");
+    jsonArr.append("pause");
+    jsonArr.append(true);
+
+    jsonObject["command"] = jsonArr;
+
+    SendJSONCommandToServer::sendRequestToServer(jsonObject);
 }
 
-void SendJSONCommandToServer::setFastForward()
+void SendJSONCommandToServer::SendStopToServ()
+{
+    QJsonObject jsonObject;
+    QJsonArray jsonArr;
+
+    jsonArr.append("pause");
+
+    jsonObject["command"] = jsonArr;
+
+    SendJSONCommandToServer::sendRequestToServer(jsonObject);
+}
+
+void SendJSONCommandToServer::SendFastForwardToServ()
 {
     // server->setFF()
 }
 
-void SendJSONCommandToServer::setFastReturn()
+void SendJSONCommandToServer::SendVolumeToServ(float volume)
+{
+    QJsonObject jsonObject;
+    QJsonArray jsonArr;
+
+    jsonArr.append("set_property");
+    jsonArr.append("volume");
+    jsonArr.append(volume);
+
+    jsonObject["command"] = jsonArr;
+
+    SendJSONCommandToServer::sendRequestToServer(jsonObject);
+}
+
+void SendJSONCommandToServer::SendFastReturnToServ()
 {
     // server->setFR()
 }

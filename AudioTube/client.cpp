@@ -19,20 +19,16 @@ Client::Client(QObject *parent) :
         client_socket->error();
     }
 
-    // Récupération des données de lecture -> état dans l'automate ; piste ; avancée ; volume
-    // Recup données BDD lecteur
-  qRegisterMetaType<signalType>("signalType");
-  m_running=true;
-  m_clientLoopThread=QtConcurrent::run(this, &Client::serverMessageLoop);
+    JSONToSrv = new SendJSONCommandToServer(0, "/tmp/server-socket");
+
+    qRegisterMetaType<signalType>("signalType");
 }
 
 Client::~Client() {
   m_socket->disconnectFromServer();
-  m_running=false;
-  m_clientLoopThread.waitForFinished();
 }
 
-void Client::readSocketOnServer() {
+void Client::readSocketOnMPV() {
 
     while(client_socket->canReadLine()){
 
@@ -61,7 +57,31 @@ void Client::readSocketOnServer() {
            }
         }
     }
+
 }
 
 
+void setVolume(float volume){
+    this->JSONToSrv::SendVolumeToServ(volume);
+}
+
+void setPlay(){
+    this->JSONToSrv::SendPlayToServ();
+}
+
+void setPause(){
+    this->JSONToSrv::SendPauseToServ();
+}
+
+void setStop(){
+    this->JSONToSrv::SendStopToServ();
+}
+
+void setAR(){
+    this->JSONToSrv::SendFastForwardToServ();
+}
+
+void setRR(){
+    this->JSONToSrv::SendFastReturnToServ();
+}
 
