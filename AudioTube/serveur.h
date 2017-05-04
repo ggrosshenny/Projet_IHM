@@ -15,13 +15,29 @@
 #include <QJsonObject>
 #include "sendjsoncommandToMPV.h"
 
-
+// Codes commandes envoyés entre serveur et clients
+enum codeCMD
+{
+    playCMD,
+    pauseCMD,
+    RRCMD,
+    ARCMD,
+    stopCMD,
+    changeMusiqueCMD,
+    changeVolumeCMD,
+    muteCMD,
+    quitCMD
+};
 
 class Serveur : public QObject
 {
     Q_OBJECT
 public:
     Serveur(QObject *parent = 0, QString mpvSocket = "/tmp/mpv-socket");
+
+    // Messages de modification de MPV reçus de l'UI
+    void onChangeMusique(QString musique);
+
 
 private:
     // Un object SendjsoncommandToMPV pour la communication vers MPV
@@ -91,10 +107,15 @@ private:
 
     // Envoie de messages JSON
     void envoieJsonClients(QJsonObject msg);
-    QJsonObject creerJsonEtatCourant(QString etatCourant);
+    void creerJsonEtatCourant(QString etatCourant);
 
     // Sauvegarde de l'état courant
     QString etatCourant;
+    int volumeCourant;
+
+    // Sauvegarde des morceaux de musiques passés
+    QList<QString> listeMusiques;
+
 
 signals:
     // Signaux de changement d'état
@@ -104,6 +125,10 @@ signals:
     void versAR();
     void versStop();
     void versQuit();
+
+    // Signaux internes pour les actions à réaliser
+    void changeMusique(QString nouvelleMusique);
+    void changeVolume(int valeur);
 
 
 private slots:
@@ -122,6 +147,12 @@ private slots:
     // Slots a exécuter lors d'une nouvelle connection ou d'un départ
     void nouveauClient();
     void deconnectionClient();
+
+    // Slots a exécuter pour changer la music courante, le volume, etc...
+    void changeMPVMusique(QString nouvelleMusique);
+    void changeMPVVolume(int valeur);
+    void mute();
+    void demute();
 
 };
 

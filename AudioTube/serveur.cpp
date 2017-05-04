@@ -1,22 +1,27 @@
 #include "serveur.h"
 #include "sendjsoncommandToMPV.h"
 
-Serveur::Serveur(QObject *parent, QString mpvSocket)
+Serveur::Serveur(QObject *parent, QString mpvSocket) :
+    QObject(parent),
+    MPVSocket(new QLocalSocket(this))
 {
+    volumeCourant = 100;
     // ---------------------------------------------------
     // Trouver la socket de MPV et créer celle des clients
 
+    qDebug() << "Je commence...";
     // Trouver la socket MPV
-    MPVSocket->connectToServer("/tmp/mpv-socket");
+    MPVSocket->connectToServer(mpvSocket);
+    qDebug() << "Jeme connecte à la socket MPV...";
     // Creation de l'objet de communication vers MPV
-    communicationMPV = new SendjsoncommandToMPV(0, "/tmp/mpv-socket");
+    communicationMPV = new SendjsoncommandToMPV(0, mpvSocket);
 
     QObject::connect(MPVSocket, SIGNAL(readyRead()), this, SLOT(readMPVSocket()));
 
     // Verification de la réussite de la connection
     if(MPVSocket->waitForConnected())
     {
-        qDebug() << "Connected to mpv server.";
+        qDebug() << "the serveur is connected to mpv server.";
     }
     else
     {
@@ -93,11 +98,15 @@ Serveur::Serveur(QObject *parent, QString mpvSocket)
     QObject::connect(stop, SIGNAL(entered()),this, SLOT(setMPVStop()));
 
     // Connects pour les slots de lectures des sockets de MPV et des clients
-    connect(MPVSocket, SIGNAL(readyRead()), this, SLOT(readMPVSocket()));
+    QObject::connect(MPVSocket, SIGNAL(readyRead()), this, SLOT(readMPVSocket()));
+
+    // Connects pour les slots de modifications de MPV
+    QObject::connect(this, SIGNAL(changeMusique(QString)), this, SLOT(changeMPVMusique(QString)));
+    QObject::connect(this, SIGNAL(changeVolume(int)), this, SLOT(changeMPVVolume(int)));
 
     // Definition de l'état initial
-    machine->setInitialState(stop);
-    etatCourant = "stop";
+    machine->setInitialState(play);
+    etatCourant = "play";
     machine->start();
 }
 
@@ -132,7 +141,7 @@ void Serveur::nouveauClient()
 /**
  * Method : deconnectionClient
  * Param : void
- * Desc : Assure la deconnection d'un client au serveur local
+ * Desc : Assure la deconnection d'un client au serveur local et l'informe de l'état courant
  * Return : void
  **/
 void Serveur::deconnectionClient()
@@ -154,7 +163,7 @@ void Serveur::deconnectionClient()
 /**
  * slot : quitMPV
  * Param : void
- * Desc : Appelle la méthode quitMPVServer de l'objet sendJSONCommandTOMPV
+ * Desc : Appelle la méthode quitMPVServer de l'objet sendJSONCommandTOMPV et informe les clients du changement d'état
  * Return : void
  **/
 void Serveur::quitMPV()
@@ -168,7 +177,7 @@ void Serveur::quitMPV()
 /**
  * Slot : setMPVPlay
  * Param : void
- * Desc : appelle la methode setMPVPause(false) de l'objet sendjsonCommandTOMPV
+ * Desc : appelle la methode setMPVPause(false) de l'objet sendjsonCommandTOMPV et informe les clients du changement d'état
  * Return : void
  **/
 void Serveur::setMPVPlay()
@@ -182,7 +191,7 @@ void Serveur::setMPVPlay()
 /**
  * Slot : setMPVPause
  * Param : void
- * Desc : appelle la methode setPauseOnMPV(true) de l'objet sendjsonCommandTOMPV
+ * Desc : appelle la methode setPauseOnMPV(true) de l'objet sendjsonCommandTOMPV et informe les clients du changement d'état
  * Return : void
  **/
 void Serveur::setMPVPause()
@@ -224,7 +233,7 @@ void Serveur::setMPVAR()
 /**
  * Slot : setMPVStop
  * Param : void
- * Desc : appelle la methode setStopOnMPV de l'objet sendjsonCommandTOMPV
+ * Desc : appelle la methode setStopOnMPV de l'objet sendjsonCommandTOMPV et informe les clients du changement d'état
  * Return : void
  **/
 void Serveur::setMPVStop()
@@ -232,6 +241,72 @@ void Serveur::setMPVStop()
     communicationMPV->setStopOnMPV();
     etatCourant = "stop";
     creerJsonEtatCourant(etatCourant);
+}
+
+
+/**
+ * Slot : changeMPVMusique
+ * Param : QString, nouvelleMusique - nom de la nouvelle musique à jouer
+ * Desc : Appelle la methode changeMusiqueOnMPV de l'objet sendjsonCommandTOMPV
+ * Return : void
+ **/
+void Serveur::changeMPVMusique(QString nouvelleMusique)
+{
+    int i = 0;
+    bool present = false;
+
+    // Verification de la présence de la musique dans la liste
+    for(i=0; i<listeMusiques.length(); i++)
+    {
+        if(listeMusiques[i].compare(nouvelleMusique) == 0)
+        {
+            present = true;
+        }
+    }
+
+    if(!present)
+    {
+        listeMusiques.append(nouvelleMusique);
+    }
+
+    communicationMPV->changeMusicOnMPV(nouvelleMusique);
+}
+
+
+/**
+ * Method : changeMPVVolume
+ * Param : int, valeur - nouvelle valeur du volume
+ * Desc : set the new volume value to MPV
+ * Return : void
+ **/
+void Serveur::changeMPVVolume(int valeur)
+{
+    volumeCourant = valeur;
+    communicationMPV->changeVolumeOnMPV(valeur);
+}
+
+
+/**
+ * Slot : mute
+ * Param : void
+ * Desc : mute MPV
+ * Return : void
+ **/
+void Serveur::mute()
+{
+    communicationMPV->changeVolumeOnMPV(0);
+}
+
+
+/**
+ * Slot : demute
+ * Param : void
+ * Desc : demute MPV
+ * Return : void
+ **/
+void Serveur::demute()
+{
+    communicationMPV->changeVolumeOnMPV(volumeCourant);
 }
 
 
@@ -266,7 +341,63 @@ void Serveur::readMPVSocket()
  **/
 void Serveur::readClientServerSocket()
 {
-    // TO-DO
+    // Recuperation du JSON
+    QByteArray line = MPVSocket->readLine().trimmed();
+    QString musique;
+    int cmd;
+    int val;
+
+    // Pour le passage en JSON
+    QJsonParseError error;
+    QJsonDocument jsonDoc=QJsonDocument::fromJson(line, &error);
+    QJsonObject jsonObject=jsonDoc.object();
+    cmd = jsonObject["commande"].toInt();
+    qDebug() << "la valeur de la cmd est : " << cmd;
+
+
+    // Gestion des cas en fonction de la commande reçu
+    switch(cmd)
+    {
+        case playCMD:
+            emit versPlay();
+            break;
+
+        case pauseCMD:
+            emit versPause();
+            break;
+
+        case RRCMD:
+            emit versRR();
+            break;
+
+        case ARCMD:
+            emit versAR();
+            break;
+
+        case stopCMD:
+            emit versStop();
+            break;
+
+        case changeMusiqueCMD:
+            musique = jsonObject["value"].toString();
+            emit changeMusique(musique);
+            break;
+
+        case changeVolumeCMD:
+            val = jsonObject["value"].toInt();
+            emit changeVolume(val);
+            break;
+
+        case quitCMD:
+            emit versQuit();
+            break;
+
+        default:
+            break;
+    }
+
+    qDebug() << QString::fromUtf8(line.constData(), line.length());
+
 }
 
 
@@ -302,7 +433,7 @@ void Serveur::envoieJsonClients(QJsonObject msg)
  * Desc : Créer le QJson pour envoyer l'état courant aux clients et l'envoie à tous les clients connectés
  * Return : QJsonObject
  **/
-QJsonObject Serveur::creerJsonEtatCourant(QString etatCourant)
+void Serveur::creerJsonEtatCourant(QString etatCourant)
 {
     QJsonObject jsonObject;
     QJsonArray jsonArr;
@@ -316,6 +447,15 @@ QJsonObject Serveur::creerJsonEtatCourant(QString etatCourant)
     Serveur::envoieJsonClients(jsonObject);
 }
 
+
+void Serveur::onChangeMusique(QString musique)
+{
+    if(musique != NULL)
+    {
+        qDebug() << "On change la musique en : " << musique;
+        emit changeMusique(musique);
+    }
+}
 
 
 
