@@ -327,31 +327,40 @@ void Serveur::readMPVSocket()
         // Traduction du message reçu : JSON-MPV -> JSON
         QJsonObject jsonMsg;
         QJsonArray jsonArr;
+
         if(jsonObject["name"] == "volume"){
-            jsonArr.append(changeVolumeCMD);
-        }
-        if(jsonObject["name"] == "pause" && jsonObject["data"] == false){
-            jsonArr.append(pauseCMD);
+            if(jsonObject["data"] == 0)
+                jsonArr.append(muteCMD);
+            else
+                jsonArr.append(changeVolumeCMD);
         }
         if(jsonObject["name"] == "pause" && jsonObject["data"] == true){
+            jsonArr.append(pauseCMD);
+        }
+        if(jsonObject["name"] == "pause" && jsonObject["data"] == false){
             jsonArr.append(playCMD);
         }
-        if(jsonObject["name"] == "volume" && jsonObject["data"] == 0){
-            jsonArr.append(muteCMD);
+        if(jsonObject["stop"]){
+            jsonArr.append(stopCMD);
         }
-        /*
-        if(jsonObject["name"] == ){
-            jsonArr.append(changeVolumeCMD)
+        if(jsonObject["name"] == "speed"){
+            jsonArr.append(ARCMD);
         }
-        if(jsonObject["name"] == "volume"){
-            jsonArr.append(changeVolumeCMD)
+        if(jsonObject["name"] == "quit"){
+            jsonArr.append(quitCMD);
         }
-        if(jsonObject["name"] == "volume"){
-            jsonArr.append(changeVolumeCMD)
+        if(jsonObject["name"] == "percent-pos"){
+            jsonArr.append(changeOffsetCMD);
         }
-        if(jsonObject["name"] == "volume"){
-            jsonArr.append(changeVolumeCMD)
-        }*/
+        if(jsonObject["name"] == "time-pos"){
+            jsonArr.append(changeCurrentTimeCMD);
+        }
+        if(jsonObject["name"] == "duration"){
+            jsonArr.append(changeTotalTimeCMD);
+        }
+        if(jsonObject["loadfile"]){
+            jsonArr.append(changeMusiqueCMD);
+        }
 
         jsonArr.append(jsonObject["data"]);
         jsonMsg["command"] = jsonArr;
