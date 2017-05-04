@@ -310,8 +310,6 @@ void Serveur::demute()
 }
 
 
-
-
 /**
  * @brief Serveur::readSocket
  **/
@@ -326,7 +324,17 @@ void Serveur::readMPVSocket()
         QJsonObject jsonObject=jsonDoc.object();
         qDebug() << jsonObject["error"].toString();
 
-        // ICI ON A RECU UN MESSAGE QU'ON PEUT TRAITER
+        // Traduction du message reçu : JSON-MPV -> JSON
+        QJsonObject jsonMsg;
+        QJsonArray jsonArr;
+
+        jsonArr.append(jsonObject["name"]);
+        jsonArr.append(jsonObject["data"]);
+        jsonMsg["command"] = jsonArr;
+
+        // Envoi du message traduit aux clients
+        Serveur::envoieJsonClients(jsonMsg);
+
 
         qDebug() << QString::fromUtf8(line.constData(), line.length());
     }
