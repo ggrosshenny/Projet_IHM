@@ -6,6 +6,9 @@
 #include <QJsonObject>
 #include <QLocalServer>
 #include <QLocalSocket>
+#include <QJsonArray>
+#include <QJsonDocument>
+#include <QJsonObject>
 #include <QDebug>
 
 
@@ -13,7 +16,7 @@ class SendJSONCommandToServer : public QObject
 {
     Q_OBJECT
 public:
-    explicit SendJSONCommandToServer(QObject *parent = 0, QString servSocket);
+    explicit SendJSONCommandToServer(QObject *parent = 0, QString servSocket = "/tmp/server-IHM");
     ~SendJSONCommandToServer();
 
     void sendRequestToServer(QJsonObject msg);
@@ -23,6 +26,9 @@ public:
     void SendStopToServ();
     void SendFastForwardToServ();
     void SendFastReturnToServ();
+    void sendMusicToServer(QString musicName);
+    void sendQuitToServer();
+
 private:
     QLocalSocket *server=NULL;
 };

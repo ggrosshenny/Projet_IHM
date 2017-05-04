@@ -22,6 +22,7 @@ public:
     void setStopOnMPV();
     void quitMPVServer();
     void getVolumeFromMPV();
+    void CurrentUpdate();
 
 private:
     QLocalSocket *mpv=NULL;

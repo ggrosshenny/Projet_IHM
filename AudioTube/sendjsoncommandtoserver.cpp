@@ -1,4 +1,5 @@
 #include "sendjsoncommandtoserver.h"
+#include "codecommandes.h"
 
 SendJSONCommandToServer::SendJSONCommandToServer(QObject *parent, QString servSocket) :
     QObject(parent),
@@ -25,7 +26,7 @@ SendJSONCommandToServer::~SendJSONCommandToServer()
 }
 
 
-SendJSONCommandToServer::sendRequestToServer(QJsonObject msg){
+void SendJSONCommandToServer::sendRequestToServer(QJsonObject msg){
     // Converting the JSON msg into bytes msg
     QByteArray bytes = QJsonDocument(msg).toJson(QJsonDocument::Compact)+"\n";
     if(server!=NULL)
@@ -35,15 +36,26 @@ SendJSONCommandToServer::sendRequestToServer(QJsonObject msg){
     }
 }
 
+
+void SendJSONCommandToServer::sendMusicToServer(QString musicName)
+{
+    QJsonObject jsonObject;
+    QJsonArray jsonArr;
+
+    jsonArr.append(changeMusiqueCMD);
+    jsonArr.append(musicName);
+    jsonObject["command"] = jsonArr;
+
+    SendJSONCommandToServer::sendRequestToServer(jsonObject);
+}
+
+
 void SendJSONCommandToServer::SendPlayToServ()
 {
     QJsonObject jsonObject;
     QJsonArray jsonArr;
 
-    jsonArr.append("set_property");
-    jsonArr.append("pause");
-    jsonArr.append(false);
-
+    jsonArr.append(playCMD);
     jsonObject["command"] = jsonArr;
 
     SendJSONCommandToServer::sendRequestToServer(jsonObject);
@@ -54,9 +66,7 @@ void SendJSONCommandToServer::SendPauseToServ()
     QJsonObject jsonObject;
     QJsonArray jsonArr;
 
-    jsonArr.append("set_property");
-    jsonArr.append("pause");
-    jsonArr.append(true);
+    jsonArr.append(pauseCMD);
 
     jsonObject["command"] = jsonArr;
 
@@ -68,7 +78,7 @@ void SendJSONCommandToServer::SendStopToServ()
     QJsonObject jsonObject;
     QJsonArray jsonArr;
 
-    jsonArr.append("pause");
+    jsonArr.append(stopCMD);
 
     jsonObject["command"] = jsonArr;
 
@@ -85,8 +95,7 @@ void SendJSONCommandToServer::SendVolumeToServ(float volume)
     QJsonObject jsonObject;
     QJsonArray jsonArr;
 
-    jsonArr.append("set_property");
-    jsonArr.append("volume");
+    jsonArr.append(changeVolumeCMD);
     jsonArr.append(volume);
 
     jsonObject["command"] = jsonArr;
@@ -97,4 +106,17 @@ void SendJSONCommandToServer::SendVolumeToServ(float volume)
 void SendJSONCommandToServer::SendFastReturnToServ()
 {
     // server->setFR()
+}
+
+
+void SendJSONCommandToServer::sendQuitToServer()
+{
+    QJsonObject jsonObject;
+    QJsonArray jsonArr;
+
+    jsonArr.append(quitCMD);
+
+    jsonObject["command"] = jsonArr;
+
+    SendJSONCommandToServer::sendRequestToServer(jsonObject);
 }

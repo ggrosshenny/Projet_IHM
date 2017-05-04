@@ -15,12 +15,13 @@ TEMPLATE = app
 SOURCES += main.cpp\
         mainwindow.cpp \
     serveur.cpp \
-    automate.cpp \
-    sendjsoncommand.cpp
+    sendjsoncommandToMPV.cpp \
+    sendjsoncommandtoserver.cpp
 
 HEADERS  += mainwindow.h \
     serveur.h \
-    automate.h \
-    sendjsoncommand.h
+    sendjsoncommandtoserver.h \
+    sendjsoncommandToMPV.h \
+    codecommandes.h
 
 FORMS    += mainwindow.ui
