@@ -26,6 +26,8 @@ public:
     // Messages de modification de MPV reçus de l'UI
     void onChangeMusique(QString musique);
 
+    void runObserves();
+
 
 private:
     // Un object SendjsoncommandToMPV pour la communication vers MPV

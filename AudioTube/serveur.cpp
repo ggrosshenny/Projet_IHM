@@ -108,6 +108,8 @@ Serveur::Serveur(QObject *parent, QString mpvSocket) :
     machine->setInitialState(play);
     etatCourant = "play";
     machine->start();
+
+    this->runObserves();
 }
 
 
@@ -311,11 +313,11 @@ void Serveur::demute()
 
 
 /**
- * @brief SendjsoncommandToMPV::CurrentUpdate
+ * Brief : Serveur::runObserves
  * Param : void
- * Desc : Check for possible update of the current track on MPV
+ * Desc : run the observe_property cmd for every properties of MPV we have interest in
  */
-void Serveur::CurrentUpdate(){
+void Serveur::runObserves(){
 <
     QJsonObject jsonObject;
     QJsonArray jsonArr;
