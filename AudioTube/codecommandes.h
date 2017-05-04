@@ -12,7 +12,10 @@ enum codeCMD
     changeMusiqueCMD,
     changeVolumeCMD,
     muteCMD,
-    quitCMD
+    quitCMD,
+    changeOffsetCMD,
+    changeCurrentTimeCMD,
+    changeTotalTimeCMD
 };
 
 #endif // CODECOMMANDES

@@ -120,3 +120,17 @@ void SendJSONCommandToServer::sendQuitToServer()
 
     SendJSONCommandToServer::sendRequestToServer(jsonObject);
 }
+
+
+void SendJSONCommandToServer::sendOffsetToServer(int offset)
+{
+    QJsonObject jsonObject;
+    QJsonArray jsonArr;
+
+    jsonArr.append(quitCMD);
+    jsonArr.append(offset);
+
+    jsonObject["command"] = jsonArr;
+
+    SendJSONCommandToServer::sendRequestToServer(jsonObject);
+}

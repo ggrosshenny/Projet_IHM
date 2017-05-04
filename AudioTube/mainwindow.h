@@ -8,6 +8,7 @@
 #include <QJsonObject>
 #include "client.h"
 #include "sendjsoncommandtoserver.h"
+#include "codecommandes.h"
 
 namespace Ui {
 class MainWindow;
@@ -33,6 +34,7 @@ private slots:
 
     // Slots pour envoyer un message au serveur
     void setVolumeOnServer(int volume);
+    void setOffsetOnServer(int offset);
     void setRR();
     void setAR();
     void setPlay();

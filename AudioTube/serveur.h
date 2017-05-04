@@ -14,20 +14,8 @@
 #include <QJsonDocument>
 #include <QJsonObject>
 #include "sendjsoncommandToMPV.h"
+#include "codecommandes.h"
 
-// Codes commandes envoyés entre serveur et clients
-enum codeCMD
-{
-    playCMD,
-    pauseCMD,
-    RRCMD,
-    ARCMD,
-    stopCMD,
-    changeMusiqueCMD,
-    changeVolumeCMD,
-    muteCMD,
-    quitCMD
-};
 
 class Serveur : public QObject
 {

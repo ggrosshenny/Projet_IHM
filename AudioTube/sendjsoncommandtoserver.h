@@ -28,6 +28,7 @@ public:
     void SendFastReturnToServ();
     void sendMusicToServer(QString musicName);
     void sendQuitToServer();
+    void sendOffsetToServer(int offset);
 
 private:
     QLocalSocket *server=NULL;

@@ -1,5 +1,6 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
+#include "codecommandes.h"
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -39,6 +40,7 @@ MainWindow::MainWindow(QWidget *parent) :
     QObject::connect(ui->RetourRapide, SIGNAL(pressed()), this, SLOT(setRR()));
     QObject::connect(ui->buttonQuit, SIGNAL(pressed()), this, SLOT(quit()));
     QObject::connect(ui->ControleVolume, SIGNAL(valueChanged(int)), this, SLOT(setVolumeOnServer(int)));
+    QObject::connect(ui->PointeurTempsMusique, SIGNAL(valueChanged(int)), this, SLOT(setOffsetOnServer(int)));
 
 }
 
@@ -126,11 +128,36 @@ void MainWindow::readSocketOnServer() {
         QJsonDocument jDoc = QJsonDocument::fromJson(readLineFromServer, &error);
         QJsonObject jObj = jDoc.object();
         QJsonArray jArr = jObj["command"].toArray();
-        QString cmd = jArr.at(0).toString();
+        int cmd = jArr.at(0).toInt();
 
         // Utilisation du JSON
 
         // Si la commande est ...
+
+        switch(cmd)
+        {
+            case changeVolumeCMD:
+                valeur = static_cast<int>(jArr.at(1).toDouble());
+                emit setVolume(valeur);
+                break;
+
+            case changeOffsetCMD:
+                valeur = static_cast<int>(jArr.at(1).toDouble());
+                emit setoffsetMusique(valeur);
+                break;
+
+            case changeCurrentTimeCMD:
+                valeur = static_cast<int>(jArr.at(1).toDouble());
+                emit setTempsEcoule(valeur);
+                break;
+
+            case changeTotalTimeCMD:
+                valeur = static_cast<int>(jArr.at(1).toDouble());
+                emit setTempsTotal(valeur);
+                break;
+        }
+
+    /*
         if(cmd == "volume")
         {
             valeur = static_cast<int>(jArr.at(1).toDouble());
@@ -149,8 +176,7 @@ void MainWindow::readSocketOnServer() {
         {
             // TO-DO
         }
-
-
+*/
 
 
     }
@@ -230,7 +256,7 @@ void MainWindow::setRR()
  */
 void MainWindow::setVolumeOnServer(int volume)
 {
-    jsonToSrv->SendVolumeToServ(volume);
+    jsonToSrv->SendVolumeToServ(static_cast<double>(volume));
 }
 
 
@@ -246,4 +272,13 @@ void MainWindow::quit()
 }
 
 
-
+/**
+ *
+ *
+ *
+ *
+ **/
+void MainWindow::setOffsetOnServer(int offset)
+{
+    jsonToSrv->sendOffsetToServer(offset);
+}
