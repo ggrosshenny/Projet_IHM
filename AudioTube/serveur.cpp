@@ -327,8 +327,32 @@ void Serveur::readMPVSocket()
         // Traduction du message reçu : JSON-MPV -> JSON
         QJsonObject jsonMsg;
         QJsonArray jsonArr;
+        if(jsonObject["name"] == "volume"){
+            jsonArr.append(changeVolumeCMD);
+        }
+        if(jsonObject["name"] == "pause" && jsonObject["data"] == false){
+            jsonArr.append(pauseCMD);
+        }
+        if(jsonObject["name"] == "pause" && jsonObject["data"] == true){
+            jsonArr.append(playCMD);
+        }
+        if(jsonObject["name"] == "volume" && jsonObject["data"] == 0){
+            jsonArr.append(muteCMD);
+        }
+        /*
+        if(jsonObject["name"] == ){
+            jsonArr.append(changeVolumeCMD)
+        }
+        if(jsonObject["name"] == "volume"){
+            jsonArr.append(changeVolumeCMD)
+        }
+        if(jsonObject["name"] == "volume"){
+            jsonArr.append(changeVolumeCMD)
+        }
+        if(jsonObject["name"] == "volume"){
+            jsonArr.append(changeVolumeCMD)
+        }*/
 
-        jsonArr.append(jsonObject["name"]);
         jsonArr.append(jsonObject["data"]);
         jsonMsg["command"] = jsonArr;
 
